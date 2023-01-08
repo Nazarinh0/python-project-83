@@ -19,8 +19,8 @@ def index():
 
 @app.post('/urls')
 def urls_add():
-    url = request.form.get('url')
-
+    raw_url = request.form.get('url')
+    url = normalize(raw_url)
     if not validator(url):
         flash('Некорректный URL', 'danger')
         return render_template(
@@ -36,7 +36,7 @@ def urls_add():
         )
     created_at = str(date.today())
 
-    with db.connect() as conn:
+    with db.connect() as conn:     # нужно выделить обращение к БД в отдельную функцию
         with conn.cursor() as curr:
             curr.execute(
                 """
@@ -59,6 +59,15 @@ def urls_show(id):
         'show.html',
         url=url,
         messages=messages
+    )
+
+
+@app.route('/urls')
+def urls_get():
+    urls = db.all_urls()
+    return render_template(
+        'urls.html',
+        urls=urls
     )
 
 
