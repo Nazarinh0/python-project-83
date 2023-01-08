@@ -1,4 +1,3 @@
-from datetime import date
 from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, \
     flash, get_flashed_messages
@@ -34,19 +33,7 @@ def urls_add():
             'index.html',
             messages=get_flashed_messages(with_categories=True)
         )
-    created_at = str(date.today())
-
-    with db.connect() as conn:     # нужно выделить обращение к БД в отдельную функцию
-        with conn.cursor() as curr:
-            curr.execute(
-                """
-                INSERT INTO urls (name, created_at)
-                VALUES (%(name)s, %(created_at)s)
-                RETURNING id;
-                """,
-                {'name': url, 'created_at': created_at})
-            url_id = curr.fetchone()[0]
-
+    url_id = db.add_url(url)
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('urls_show', id=url_id))
 
