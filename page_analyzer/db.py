@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import psycopg2
 import os
+from datetime import date
 
 load_dotenv()
 
@@ -53,3 +54,17 @@ def all_urls():
         urls.append(url)
     return urls
 
+
+def add_url(url):
+    created_at = str(date.today())
+    with connect() as conn:
+        with conn.cursor() as curr:
+            curr.execute(
+                """
+                INSERT INTO urls (name, created_at)
+                VALUES (%(name)s, %(created_at)s)
+                RETURNING id;
+                """,
+                {'name': url, 'created_at': created_at})
+            url_id = curr.fetchone()[0]
+    return url_id
