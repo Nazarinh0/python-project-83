@@ -41,11 +41,13 @@ def urls_add():
 @app.route('/urls/<int:id>')
 def urls_show(id):
     url = db.find_url(id)
+    checks = db.all_checks(id)
     messages = get_flashed_messages(with_categories=True)
     return render_template(
         'show.html',
         url=url,
-        messages=messages
+        messages=messages,
+        checks=checks
     )
 
 
@@ -56,6 +58,13 @@ def urls_get():
         'urls.html',
         urls=urls
     )
+
+
+@app.post('/urls/<int:id>/checks')
+def urls_check(id):  # функция завершена, менять ее не нужно
+    db.check_url(id)
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('urls_show', id=id))
 
 
 def normalize(url):
