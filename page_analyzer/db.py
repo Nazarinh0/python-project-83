@@ -43,7 +43,7 @@ def find_url(id):
     }
 
 
-def all_urls():
+def all_urls():  # сюда добавить вывод url.date & url.status для последней проверки
     with connect().cursor() as cursor:
         cursor.execute(
             "SELECT * FROM urls;")
@@ -68,3 +68,34 @@ def add_url(url):
                 {'name': url, 'created_at': created_at})
             url_id = curr.fetchone()[0]
     return url_id
+
+
+def check_url(id):
+    created_at = str(date.today())
+    with connect() as conn:
+        with conn.cursor() as curr:
+            curr.execute(
+                """
+                INSERT INTO url_checks (url_id, created_at)
+                VALUES (%(url_id)s, %(created_at)s)
+                RETURNING url_id, created_at;
+                """,
+                {'url_id': id, 'created_at': created_at})
+
+
+def all_checks(id):  # нужно реализовать возврат СЛОВАРЁМ всех проверок, которые приходились на юрл
+    with connect() as conn:
+        with conn.cursor() as curr:
+            curr.execute(
+                """SELECT
+                id,
+                status_code,
+                COALESCE(h1, '') as h1,
+                COALESCE(title, '') as title,
+                COALESCE(description, '') as content,
+                DATE(created_at) as created_at
+                 FROM url_checks
+                WHERE url_id = %s
+                ORDER BY id;""", (id,))
+            rows = curr.fetchall()
+    return rows
