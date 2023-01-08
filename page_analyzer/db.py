@@ -40,3 +40,16 @@ def find_url(id):
         'name': name,
         'created_at': created_at
     }
+
+
+def all_urls():
+    with connect().cursor() as cursor:
+        cursor.execute(
+            "SELECT * FROM urls;")
+        rows = cursor.fetchall()
+    urls = []
+    for row in rows:
+        url = {'id': row[0], 'name': row[1]}
+        urls.append(url)
+    return urls
+
