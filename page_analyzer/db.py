@@ -43,14 +43,25 @@ def find_url(id):
     }
 
 
-def all_urls():  # сюда добавить вывод url.date & url.status для последней проверки
+def all_urls():  # сюда добавить вывод url.status для последней проверки
     with connect().cursor() as cursor:
         cursor.execute(
-            "SELECT * FROM urls;")
+            """
+            SELECT urls.id, urls.name, MAX(url_checks.created_at) AS created_at
+            FROM urls
+            LEFT JOIN url_checks ON urls.id = url_checks.url_id
+            GROUP BY urls.id, urls.name;
+            """)
         rows = cursor.fetchall()
     urls = []
     for row in rows:
-        url = {'id': row[0], 'name': row[1]}
+        url = {
+            'id': row[0],
+            'name': row[1],
+            'date': row[2]
+        }
+        if not url['date']:
+            url['date'] = ''
         urls.append(url)
     return urls
 
@@ -83,19 +94,32 @@ def check_url(id):
                 {'url_id': id, 'created_at': created_at})
 
 
-def all_checks(id):  # нужно реализовать возврат СЛОВАРЁМ всех проверок, которые приходились на юрл
+def all_checks(id):
     with connect() as conn:
         with conn.cursor() as curr:
             curr.execute(
                 """SELECT
                 id,
                 status_code,
-                COALESCE(h1, '') as h1,
-                COALESCE(title, '') as title,
-                COALESCE(description, '') as content,
-                DATE(created_at) as created_at
+                COALESCE(h1, ''),
+                COALESCE(title, ''),
+                COALESCE(description, ''),
+                DATE(created_at)
                  FROM url_checks
                 WHERE url_id = %s
                 ORDER BY id;""", (id,))
             rows = curr.fetchall()
-    return rows
+            print(rows)
+    checks = []
+    for row in rows:
+        print(row)
+        check = {
+            'id': row[0],
+            'response_code': row[1],
+            'h1': row[2],
+            'title': row[3],
+            'content': row[4],
+            'created_at': row[5],
+        }
+        checks.append(check)
+    return checks
