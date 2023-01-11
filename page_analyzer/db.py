@@ -20,9 +20,9 @@ def exist_url(url):
             WHERE name = %(url)s;
             """,
             {'url': url})
-        id = cursor.fetchone()[0]
+        id = cursor.fetchone()
     if id:
-        return id
+        return id[0]
     return False
 
 
