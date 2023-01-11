@@ -1,4 +1,6 @@
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+import requests
 from flask import Flask, render_template, request, redirect, url_for, \
     flash, get_flashed_messages
 from dotenv import load_dotenv
@@ -61,8 +63,32 @@ def urls_get():
 
 
 @app.post('/urls/<int:id>/checks')
-def urls_check(id):  # функция завершена, менять ее не нужно
-    db.check_url(id)
+def urls_check(id):
+    url = db.find_url(id)['name']
+
+    try:
+        response = requests.get(url)
+    except requests.exceptions.RequestException as e:
+        print(e)
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('urls_show', id=id))
+
+    status_code = response.status_code
+    soup = BeautifulSoup(response.text, 'lxml')
+    h1 = soup.find('h1')
+    h1 = h1.text if h1 else ''
+    title = soup.find('title')
+    title = title.text if title else ''
+    description = soup.find('meta', {'name': 'description'})
+    description = description['content'] if description else ''
+
+    db.check_url(
+        id,
+        status_code=status_code,
+        h1=h1,
+        title=title,
+        description=description
+    )
     flash('Страница успешно проверена', 'success')
     return redirect(url_for('urls_show', id=id))
 
