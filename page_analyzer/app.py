@@ -27,14 +27,11 @@ def urls_add():
         return render_template(
             'index.html',
             messages=get_flashed_messages(with_categories=True)
-        )
-
-    if db.exist_url(url):
-        flash('Страница уже существует', 'danger')
-        return render_template(
-            'index.html',
-            messages=get_flashed_messages(with_categories=True)
-        )
+        ), 422
+    id = db.exist_url(url)
+    if id:
+        flash('Страница уже существует', 'info')
+        return redirect(url_for('urls_show', id=id))
     url_id = db.add_url(url)
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('urls_show', id=url_id))
