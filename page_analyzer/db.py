@@ -47,10 +47,14 @@ def all_urls():  # сюда добавить вывод url.status для пос
     with connect().cursor() as cursor:
         cursor.execute(
             """
-            SELECT urls.id, urls.name, MAX(url_checks.created_at) AS created_at
+            SELECT
+                urls.id,
+                urls.name,
+                MAX(url_checks.created_at) AS created_at,
+                url_checks.status_code
             FROM urls
             LEFT JOIN url_checks ON urls.id = url_checks.url_id
-            GROUP BY urls.id, urls.name;
+            GROUP BY urls.id, urls.name, url_checks.status_code;
             """)
         rows = cursor.fetchall()
     urls = []
@@ -58,7 +62,8 @@ def all_urls():  # сюда добавить вывод url.status для пос
         url = {
             'id': row[0],
             'name': row[1],
-            'date': row[2]
+            'date': row[2],
+            'status_code': row[3]
         }
         if not url['date']:
             url['date'] = ''
@@ -81,17 +86,31 @@ def add_url(url):
     return url_id
 
 
-def check_url(id):
+def check_url(id, status_code=None, h1=None, title=None, description=None):
     created_at = str(date.today())
     with connect() as conn:
         with conn.cursor() as curr:
             curr.execute(
                 """
-                INSERT INTO url_checks (url_id, created_at)
-                VALUES (%(url_id)s, %(created_at)s)
+                INSERT INTO url_checks (
+                    url_id, status_code, h1, title, description, created_at)
+                VALUES (
+                %(url_id)s,
+                %(status_code)s,
+                %(h1)s,
+                %(title)s,
+                %(description)s,
+                %(created_at)s)
                 RETURNING url_id, created_at;
                 """,
-                {'url_id': id, 'created_at': created_at})
+                {
+                    'url_id': id,
+                    'status_code': status_code,
+                    'h1': h1,
+                    'title': title,
+                    'description': description,
+                    'created_at': created_at
+                })
 
 
 def all_checks(id):
