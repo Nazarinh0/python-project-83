@@ -3,7 +3,7 @@
 [![Linter check](https://github.com/Nazarinh0/python-project-83/workflows/linter-check/badge.svg)](https://github.com/Nazarinh0/python-project-83/actions/workflows/linter-check.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/c8c380438c971d5e4efd/maintainability)](https://codeclimate.com/github/Nazarinh0/python-project-83/maintainability)
 
-### PAGE ANALYZER
+## PAGE ANALYZER
 This is a web application built using Python on the Flask framework. 
 It allows users to add websites and perform basic "SEO checks" on them.
 
