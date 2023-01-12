@@ -43,7 +43,7 @@ def find_url(id):
     }
 
 
-def all_urls():  # сюда добавить вывод url.status для последней проверки
+def all_urls():
     with connect().cursor() as cursor:
         cursor.execute(
             """
