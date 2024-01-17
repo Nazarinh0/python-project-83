@@ -3,6 +3,7 @@ import psycopg2
 import os
 from datetime import date
 
+
 load_dotenv()
 
 
