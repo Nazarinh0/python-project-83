@@ -8,6 +8,7 @@ import os
 import page_analyzer.db as db
 from validators import url as validator
 
+
 load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
